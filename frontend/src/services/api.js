@@ -1,23 +1,19 @@
-import axios from 'axios';
+const API_URL = import.meta.env.VITE_API_URL;
 
-const api = axios.create({
-  baseURL: '/api',
-});
-
-export const jobApi = {
-  getAllJobs: () => api.get('/jobs/'),
-  getRecommendations: (resumeText) => api.post('/jobs/recommend', null, {
-    params: { resume_text: resumeText }
-  }),
-  uploadResume: (file) => {
-    const formData = new FormData();
-    formData.append('file', file);
-    return api.post('/jobs/upload-resume', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-  },
+// Get all jobs
+export const getJobs = async () => {
+  const response = await fetch(`${API_URL}/api/jobs`);
+  return response.json();
 };
 
-export default api;
+// Record interaction
+export const recordInteraction = async (jobId, type) => {
+  const response = await fetch(
+    `${API_URL}/api/jobs/interaction?job_id=${jobId}&type=${type}`,
+    {
+      method: "POST",
+    }
+  );
+
+  return response.json();
+};

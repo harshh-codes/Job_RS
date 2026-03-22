@@ -1,7 +1,9 @@
 import { useState } from 'react'
-import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
+import axios from 'axios'
 import { FileUp, Search, CheckCircle, AlertCircle } from 'lucide-react'
+
+const API_URL = import.meta.env.VITE_API_URL;
 
 export default function UploadResume() {
   const [resumeText, setResumeText] = useState('')
@@ -23,35 +25,50 @@ export default function UploadResume() {
 
   const handleRecommend = async (e) => {
     e.preventDefault()
-    
+
     if (!file && !resumeText.trim()) {
-      setError('Please provide a resume by pasting text or uploading a PDF.')
+      setError('Please provide a resume.')
       return
     }
 
     setLoading(true)
     setError('')
+
     try {
       let response;
+
       if (file) {
-        // Handle File Upload
         const formData = new FormData()
         formData.append('file', file)
-        response = await axios.post('/api/jobs/upload-resume', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' }
+
+        response = await axios.post(
+          `${API_URL}/api/jobs/upload-resume`,
+          formData,
+          { headers: { 'Content-Type': 'multipart/form-data' } }
+        )
+
+        navigate('/recommendations', {
+          state: {
+            jobs: response.data.recommendations,
+            skills: response.data.extracted_skills
+          }
         })
-        // The file upload returns { recommendations: [...], extracted_skills: [...] }
-        navigate('/recommendations', { state: { jobs: response.data.recommendations, skills: response.data.extracted_skills } })
+
       } else {
-        // Handle Text Paste
-        response = await axios.post('/api/jobs/recommend', null, {
-          params: { resume_text: resumeText }
+        response = await axios.post(
+          `${API_URL}/api/jobs/recommend`,
+          null,
+          { params: { resume_text: resumeText } }
+        )
+
+        navigate('/recommendations', {
+          state: { jobs: response.data }
         })
-        navigate('/recommendations', { state: { jobs: response.data } })
       }
+
     } catch (err) {
       console.error(err)
-      setError(err.response?.data?.detail || 'Failed to fetch recommendations.')
+      setError('Failed to fetch recommendations')
     } finally {
       setLoading(false)
     }
