@@ -1,3 +1,6 @@
+To check the working visit : job-rs.vercel.app
+
+
 # 🚀 AI-Powered Job Recommendation System (Lightweight)
 
 An efficient, full-stack recruitment platform designed for high-performance job matching. This version is optimized for **cloud free-tier deployment** (e.g., Render, Railway) by using efficient algorithms that run with a minimal memory footprint.
