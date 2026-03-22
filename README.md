@@ -1,4 +1,4 @@
-To check the working visit : job-rs.vercel.app
+To check the working visit :https://job-rs.vercel.app/
 
 
 # 🚀 AI-Powered Job Recommendation System (Lightweight)
