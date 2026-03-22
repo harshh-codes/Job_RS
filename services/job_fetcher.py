@@ -90,7 +90,7 @@ class JobFetcherService:
 
     def _infer_skills(self, description: str) -> List[str]:
         """
-        Uses the advanced SkillsExtractor service (spaCy-based) to find skills in descriptions.
+        Uses the internal SkillsExtractor service to find skills in descriptions.
         """
         from services.skills_service import skills_extractor
         return skills_extractor.extract_skills(description)

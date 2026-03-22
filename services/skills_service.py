@@ -1,21 +1,9 @@
-import spacy
-from spacy.matcher import PhraseMatcher
+
+import re
 from typing import List, Tuple
-import os
 
 class SkillsExtractor:
     def __init__(self):
-        try:
-            # Load spaCy model
-            self.nlp = spacy.load("en_core_web_sm")
-        except OSError:
-            # Fallback if model is not downloaded (though we are downloading it)
-            import subprocess
-            subprocess.run(["python", "-m", "spacy", "download", "en_core_web_sm"])
-            self.nlp = spacy.load("en_core_web_sm")
-            
-        self.matcher = PhraseMatcher(self.nlp.vocab, attr="LOWER")
-        
         # Comprehensive list of software engineering skills
         self.skills_list = [
             # Programming Languages
@@ -32,34 +20,36 @@ class SkillsExtractor:
             "Jira", "Slack", "Confluence", "Postman", "Swagger", "GraphQL", "REST API", "Microservices", "System Design", "Unit Testing", "TDD", "Agile", "Scrum",
             "HTML", "CSS", "Tailwind", "Bootstrap", "Redux", "Webpack", "Vite"
         ]
-        
-        # Add patterns to matcher
-        patterns = [self.nlp.make_doc(text) for text in self.skills_list]
-        self.matcher.add("SKILLS", patterns)
 
     def extract_all(self, text: str) -> Tuple[List[str], str]:
         """
-        Extracts both skills and the likely location (GPE entities) from the resume.
-        Returns (skills, location).
+        Lightweight replacement for spaCy extraction.
+        Uses keyword matching for skills and simple heuristics for location.
         """
         if not text:
             return [], ""
             
-        doc = self.nlp(text)
+        text_lower = text.lower()
         
-        # 1. Extract Skills
-        matches = self.matcher(doc)
+        # 1. Extract Skills (Keyword Matching)
         extracted_skills = []
-        for match_id, start, end in matches:
-            span = doc[start:end]
-            extracted_skills.append(span.text)
-            
-        # 2. Extract Location (GPE - Geopolitical Entities)
-        # Using the last GPE mentioned as the likely location
-        locations = [ent.text for ent in doc.ents if ent.label_ == "GPE"]
-        location = "Unknown" if not locations else locations[-1]
+        for skill in self.skills_list:
+            # Use word boundaries to avoid matching "Java" in "JavaScript"
+            pattern = r'\b' + re.escape(skill.lower()) + r'\b'
+            if re.search(pattern, text_lower):
+                extracted_skills.append(skill)
+                
+        # 2. Extract Location (Simple Heuristic for demo)
+        # In a lightweight version, we look for common city patterns 
+        # or just return "Unknown" if not easily found without NER.
+        # For simplicity in this refactor, we'll try to find common Indian cities as a placeholder.
+        cities = ["Bangalore", "Mumbai", "Delhi", "Pune", "Hyderabad", "Chennai", "Gurgaon", "Noida", "Remote"]
+        location = "Unknown"
+        for city in cities:
+            if city.lower() in text_lower:
+                location = city
+                break
         
-        # Remove duplicates and sort skills
         return sorted(list(set(extracted_skills))), location
 
     def extract_skills(self, text: str) -> List[str]:
