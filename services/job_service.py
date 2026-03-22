@@ -6,6 +6,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 from utils.helpers import clean_text
 from services.skills_service import skills_extractor
 from services.ranker_service import job_ranker
+from services.dummy_data import DUMMY_JOBS
 
 class JobRecommendationService:
     def __init__(self):
@@ -46,6 +47,11 @@ class JobRecommendationService:
         """
         Recommends jobs using TF-IDF and heuristic re-ranking.
         """
+        # FALLBACK: If database is empty, use the high-quality demo dataset
+        if not jobs_list:
+            print("System Check: Database empty, using demo jobs for demonstration.")
+            jobs_list = DUMMY_JOBS
+            
         if not jobs_list:
             return [], []
             

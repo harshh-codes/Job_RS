@@ -40,8 +40,8 @@ class JobRanker:
             return []
 
         # Heuristic Weights (Total = 1.0)
-        # 40% based on TF-IDF relevance, 40% on skill overlap, 20% on location
-        W = np.array([0.4, 0.4, 0.2])
+        # 30% based on TF-IDF relevance, 50% on skill overlap, 20% on location
+        W = np.array([0.3, 0.5, 0.2])
         
         for job in jobs:
             features = self.extract_features(resume_skills, resume_location, job)

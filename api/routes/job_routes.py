@@ -6,6 +6,7 @@ from services.job_fetcher import job_fetcher
 from database import get_db
 from models.db_models import JobDB
 from sqlalchemy.orm import Session
+from services.dummy_data import DUMMY_JOBS
 
 router = APIRouter()
 
@@ -23,7 +24,13 @@ async def fetch_remote_jobs(query: str = "data scientist jobs India", db: Sessio
 @router.get("/", response_model=List[JobResponse])
 async def get_all_jobs(db: Session = Depends(get_db)):
     jobs = db.query(JobDB).all()
-    return [job.to_dict() for job in jobs]
+    job_list = [job.to_dict() for job in jobs]
+    
+    # Fallback to dummy data if DB is empty
+    if not job_list:
+        return DUMMY_JOBS
+        
+    return job_list
 
 @router.post("/recommend", response_model=List[JobResponse])
 async def get_recommendations(resume_text: str, db: Session = Depends(get_db)):
